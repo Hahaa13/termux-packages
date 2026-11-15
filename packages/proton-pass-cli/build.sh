@@ -2,10 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://protonpass.github.io/pass-cli/
 TERMUX_PKG_DESCRIPTION="Proton Pass Command Line Interface (CLI)"
 TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_MAINTAINER="Gouranga Das Samrat <gouranga.das.khulna@gmail.com>"
-TERMUX_PKG_VERSION="2.4.2"
+TERMUX_PKG_VERSION="2.7.0"
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL="https://github.com/protonpass/pass-cli/archive/refs/tags/${TERMUX_PKG_VERSION}.tar.gz"
-TERMUX_PKG_SHA256=75f9212c548e1e8d5358b1ace7b825e6352aad3d7454e4339fd04b261a4f6db2
+TERMUX_PKG_SHA256=623e6fa0c3d83daa8778e7d6693406f6d5aee82e4b460ddccddb5218322598a4
 TERMUX_PKG_DEPENDS="openssl, protobuf, sqlcipher, zlib"
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_BUILD_IN_SRC=true
@@ -21,6 +21,19 @@ termux_step_pre_configure() {
 	export PKG_CONFIG_ALLOW_CROSS=1
 	export SQLCIPHER_LIB_DIR="$TERMUX_PREFIX/lib"
 	export SQLCIPHER_INCLUDE_DIR="$TERMUX_PREFIX/include"
+
+	cargo vendor
+	find ./vendor \
+		-mindepth 1 -maxdepth 1 -type d \
+		! -wholename ./vendor/cc \
+		-exec rm -rf '{}' \;
+
+	local cc_patch="$TERMUX_PKG_BUILDER_DIR/rust-cc-do-not-concatenate-all-the-CFLAGS.diff"
+	patch -p1 -d vendor/cc < "$cc_patch"
+
+	echo "" >> Cargo.toml
+	echo '[patch.crates-io]' >> Cargo.toml
+	echo "cc = { path = \"./vendor/cc\" }" >> Cargo.toml
 }
 
 termux_step_make() {

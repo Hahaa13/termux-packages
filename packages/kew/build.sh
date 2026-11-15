@@ -2,12 +2,12 @@ TERMUX_PKG_HOMEPAGE=https://kewplayer.com
 TERMUX_PKG_DESCRIPTION="Music for the Shell"
 TERMUX_PKG_LICENSE="GPL-2.0-only"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="4.4.1"
+TERMUX_PKG_VERSION="4.4.3"
 TERMUX_PKG_SRCURL="https://codeberg.org/ravachol/kew/archive/v$TERMUX_PKG_VERSION.tar.gz"
-TERMUX_PKG_SHA256=c0139b3246f82f20e1a01b1ffc1fe05f53ba3f3a0374b1fcacf17a6e7b0500eb
+TERMUX_PKG_SHA256=4708e4e5bc7e0f83cea1472eded9e01ae0142c71a8bf91afbe2efc137a21bae5
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_BUILD_IN_SRC=true
-TERMUX_PKG_DEPENDS="chafa, faad2, fftw, glib, libogg, libvorbis, libopus, opusfile, taglib"
+TERMUX_PKG_DEPENDS="chafa, faad2, fftw, glib, libandroid-spawn, libogg, libvorbis, libopus, opusfile, taglib"
 TERMUX_PKG_SUGGESTS="chroma-visualizer"
 TERMUX_PKG_EXTRA_MAKE_ARGS="ARCH=$TERMUX_ARCH"
 
@@ -20,6 +20,7 @@ termux_step_post_get_source() {
 }
 
 termux_step_pre_configure() {
+	LDFLAGS+=" -landroid-spawn"
 	if [[ "$TERMUX_DEBUG_BUILD" == "true" ]]; then
 		TERMUX_PKG_EXTRA_MAKE_ARGS+=" DEBUG=1"
 	fi
